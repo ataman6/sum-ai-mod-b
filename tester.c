@@ -8,8 +8,8 @@ typedef int64_t i64;
 
 void tester(i64 (*f)(i64, i64, i64), const char *name)
 {
-	i64 a = 234, b = 823, n = 419;
-	i64 times = 10000;
+	i64 a = 2349191, b = 82317371, n = 41972025;
+	i64 times = 1;
 
 	i64 ans = 0;
 

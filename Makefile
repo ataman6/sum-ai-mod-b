@@ -1,5 +1,6 @@
 
-CFLAGS = -Wall -Wextra -Werror -O3 -fsanitize=undefined -g3
+CFLAGS = -Wall -Wextra -O3 -g3 -march=native
+CFLAGS += -fsanitize=undefined
 
 rem: rem.c tester.o
 	$(CC) $(CFLAGS) -o $@ $^

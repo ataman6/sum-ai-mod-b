@@ -66,6 +66,9 @@ void tester(i64 (*f)(i64, i64, i64), const char *name);
 
 int main(void)
 {
+	// printf("%li\n", f2(4034, 5969, 4237228923));
+	// return 0;
+
 	test();
 
 	tester(f, "base");
@@ -90,10 +93,7 @@ static inline i64 f2(i64 a, i64 b, i64 n)
 
 	i64 g = gcd(a, b);
 
-	a /= g;
-	b /= g;
-
-	return f3(a, b, n) * g;
+	return f3(a / g, b / g, n) * g;
 }
 
 static inline i64 f2_div(i64 a, i64 b, i64 n)
@@ -106,7 +106,7 @@ static inline i64 f2_div(i64 a, i64 b, i64 n)
 
 static inline i64 f3(i64 a, i64 b, i64 n)
 {
-	return (n / b) * b * (b - 1) / 2 + f4(a % b, b, n % b);
+	return (n - (n % b)) * (b - 1) / 2 + f4(a % b, b, n % b);
 }
 
 static inline i64 f4_block_sum(i64 a, i64 n, i64 w, i64 h)
@@ -139,57 +139,38 @@ static inline i64 f4(i64 a, i64 b, i64 n)
 	i64 w = (b / a) + 1;
 	i64 h = a - (b % a);
 
-	if(2 * h > a) {
-		h -= a;
-		w -= 1;
-	}
-
 	assert(b == a * w - h);
 
 	assert(h != 0);
 
-	i64 abs_h = h < 0 ? -h : h;
-
-	i64 rounds = abs_h * n / b;
+	i64 rounds = h * n / b;
 
 	// printf("recursive %li < %li\n", abs_h, b);
-	assert(abs_h < b);
-	i64 s3 = f2_div(a, abs_h, rounds);
-	s3 -= rounds / (abs_h / gcd(a, abs_h));
+	assert(h < b);
+	i64 s = f2_div(a, h, rounds) * b;
 
-	i64 s = f4_block_sum(a, n, w, h);
-	i64 base;
+	s += f4_block_sum(a, n, w, h);
 
-	if(h >= 1) {
-		base = n;
-	} else if(h <= -1) {
-		base = n - rounds;
-	}
+	s -= n - (n % b);
 
 	assert(w < b);
 	// printf("recursive %li < %li\n", w, b);
 
 	i64 s2 = 0;
 
-	{
-		i64 wh1 = (base + rounds + 1) / w;
-		i64 re1 = (base + rounds + 1) % w;
+	if(1) {
+		i64 wh1 = (n + rounds + 1) / w;
+		i64 re1 = (n + rounds + 1) % w;
 		i64 cus1 = wh1 * (wh1 - 1) / 2 * w + wh1 * re1;
 
-		i64 wh2 = (base + 1) / w;
-		i64 re2 = (base + 1) % w;
+		i64 wh2 = (n + 1) / w;
+		i64 re2 = (n + 1) % w;
 		i64 cus2 = wh2 * (wh2 - 1) / 2 * w + wh2 * re2;
 
 		s2 += cus1 - cus2;
 	}
 
-	if(h >= 1) {
-		s -= (s2 - s3) * b;
-	} else if(h <= -1) {
-		s2 += (n - rounds) / w;
-
-		s += (s2 - s3) * b;
-	}
+	s -= s2 * b;
 
 	return s;
 }
